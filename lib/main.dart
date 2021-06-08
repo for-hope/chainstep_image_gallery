@@ -92,8 +92,8 @@ class _ChainstepGalleryState extends State<ChainstepGallery> {
 
     //var filesList = await read('image_cache') as List<CameraImage>;
     List jsonList = await read('image_cache');
-    List<CameraImage> imageList = [];
-    jsonList.forEach((element) { imageList.add(CameraImage.fromJson(element)); });
+    List<GalleryImage> imageList = [];
+    jsonList.forEach((element) { imageList.add(GalleryImage.fromJson(element)); });
     print(imageList.length);
     //filesList.forEach((element) {print(element.id);});
 

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+
+final cacheKey = 'image_cache';
+
 void toastMessage(
     {@required String text, MaterialAccentColor bgColor = Colors.greenAccent}) {
   Fluttertoast.showToast(

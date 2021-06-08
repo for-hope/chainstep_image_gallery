@@ -2,9 +2,12 @@ import 'dart:convert';
 
 import 'package:chainstep_image_gallery/models/image.dart';
 import 'package:chainstep_image_gallery/pages/photo_details.dart';
+import 'package:chainstep_image_gallery/services/cache.dart';
+
 import 'package:chainstep_image_gallery/utils/constants.dart';
-import 'package:chainstep_image_gallery/utils/storage.dart';
+import 'file:///C:/Users/songo/AndroidStudioProjects/chainstep_image_gallery/lib/services/storage.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,100 +18,112 @@ class GalleryPage extends StatefulWidget {
 }
 
 class _GalleryPageState extends State<GalleryPage> {
-  List<CameraImage> imagesList = [];
+  List<GalleryImage> images = [];
+
   @override
   void initState() {
-    retrieveImagesList();
+    //fetch images from cache or photo_manager
+    retrieveImages();
     super.initState();
   }
 
-  void retrieveImagesList() async {
-    List jsonList = await read('image_cache');
-    List<CameraImage> imageList = [];
-    print("Lenght of json = " + jsonList.length.toString());
+  void retrieveImages() async {
+    //retrieve and show cache if possible
+    List jsonList = await retrieveCache(cacheKey);
+    List<GalleryImage> cachedGImages = [];
     jsonList.forEach((element) {
-      imageList.add(CameraImage.fromJson(element));
+      cachedGImages.add(GalleryImage.fromJson(element));
     });
-    print("Lenght of imagelist = " + imageList.length.toString());
-    var mList = [];
 
-    if (imageList.isEmpty) {
-      toastMessage(text: "Loaded from storage");
-      print("From Storage");
-      mList = await getCameraImages();
-    } else {
+    if (cachedGImages.isNotEmpty) {
       toastMessage(text: "Loaded from cache");
       print("From Cache");
-      mList = imageList;
+      updateImages(cachedGImages);
+    } else {
+      toastMessage(text: "Loaded from storage");
+      print("From Storage");
+      //await fetchImagesFromStorage().then((images) => updateImages(images));
     }
+    //fetch updated images from photo_manager
+    refreshImages();
+  }
+
+  void updateImages(List<GalleryImage> imageList) {
     setState(() {
-      imagesList = mList;
+      images = imageList;
     });
-    print(imagesList.length);
-    print(DateTime.now().microsecondsSinceEpoch);
+  }
+
+  void refreshImages() async {
+    await fetchImagesFromStorage().then((value) {
+      if(!listEquals(images, value)){
+        setState(() {
+          images = value;
+        });
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.black87,
-      child: (imagesList.length > 0)
-          ? staggeredGridView()
-          : Center(
-              child: Container(
-                width: 20.0,
-                height: 20.0,
-                child: CircularProgressIndicator(),
-              ),
-            ),
+        color: Colors.black87,
+        child: (images.length > 0) ? staggeredGrid() : loadingView());
+  }
+
+  Widget loadingView() {
+    return Center(
+      child: Container(
+        width: 20.0,
+        height: 20.0,
+        child: CircularProgressIndicator(),
+      ),
     );
   }
 
-  Widget staggeredGridView() {
+  Widget staggeredGrid() {
     return StaggeredGridView.countBuilder(
       crossAxisCount: 4,
-      itemCount: imagesList.length,
+      itemCount: images.length,
       itemBuilder: (BuildContext context, int index) => GestureDetector(
-        onTap: () => Navigator.push(
-            context,
-            PageRouteBuilder(
-                pageBuilder: (_, __, ___) => PhotoPage(
-                      image: imagesList[index],
-                      cachedImage: imageTile(index),
-                    ),
-                transitionDuration: Duration(milliseconds: 400),
-                fullscreenDialog: true)),
-        child: Hero(
-            tag: "gallery_${imagesList[index].id}", child: imageTile(index)),
-      ),
+          onTap: () {
+            (images[index].imageFile().existsSync())
+                ? Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                        pageBuilder: (_, __, ___) => PhotoPage(
+                              image: images[index],
+                              cachedImage: imageTile(index),
+                            ),
+                        transitionDuration: Duration(milliseconds: 400),
+                        fullscreenDialog: true))
+                : toastMessage(text: "Image not found.");
+          },
+          child: Hero(
+            tag: "gallery_${images[index].id}",
+            child: (images[index].imageFile().existsSync())
+                ? imageTile(index)
+                : invalidImage(index),
+          )),
       staggeredTileBuilder: (int index) =>
-          StaggeredTile.count(2, imagesList[index].tileSize()),
+          StaggeredTile.count(2, images[index].tileSize()),
       mainAxisSpacing: 6.0,
       crossAxisSpacing: 5.0,
     );
   }
 
+  Widget invalidImage(index) {
+    refreshImages();
+    return Icon(Icons.broken_image);
+  }
+
   Image imageTile(int index) {
-    return Image.file(
-      imagesList[index].imageFile(),
+    var image = images[index].imageFile();
+    var imageWidget = Image.file(
+      image,
       fit: BoxFit.cover,
       cacheWidth: 220,
     );
-  }
-
-  read(String key) async {
-    final prefs = await SharedPreferences.getInstance();
-    var stringsList = prefs.getStringList(key);
-    if (stringsList != null){
-      var jsonList = [];
-      stringsList.forEach((element) {
-        jsonList.add(jsonDecode(element));
-      });
-      return jsonList;
-    } else {
-      return [];
-    }
-
-    //return json.decode(prefs.getString(key));
+    return imageWidget;
   }
 }
