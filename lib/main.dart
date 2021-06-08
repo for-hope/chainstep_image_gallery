@@ -1,7 +1,11 @@
+import 'dart:convert';
+
+import 'package:chainstep_image_gallery/models/image.dart';
 import 'package:chainstep_image_gallery/pages/gallery.dart';
 import 'package:chainstep_image_gallery/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(MyApp());
@@ -72,7 +76,27 @@ class _ChainstepGalleryState extends State<ChainstepGallery> {
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+
+  read(String key) async {
+    final prefs = await SharedPreferences.getInstance();
+    var stringsList = prefs.getStringList(key);
+    var jsonList = [];
+    stringsList.forEach((element) {
+      jsonList.add(jsonDecode(element));
+    });
+    return jsonList;
+    //return json.decode(prefs.getString(key));
+  }
+
   void requestPermission() async {
+
+    //var filesList = await read('image_cache') as List<CameraImage>;
+    List jsonList = await read('image_cache');
+    List<CameraImage> imageList = [];
+    jsonList.forEach((element) { imageList.add(CameraImage.fromJson(element)); });
+    print(imageList.length);
+    //filesList.forEach((element) {print(element.id);});
+
     if (await Permission.storage.request().isGranted) {
       toastMessage(text: "Permission already granted.");
       //todo go on

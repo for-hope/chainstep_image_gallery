@@ -20,7 +20,7 @@ class _PhotoPageState extends State<PhotoPage> {
   @override
   void initState() {
     displayPhoto = widget.cachedImage.image;
-    preCachedImage = Image.file(widget.image.imageFile).image;
+    preCachedImage = Image.file(widget.image.imageFile()).image;
     super.initState();
   }
 
