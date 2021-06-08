@@ -1,12 +1,9 @@
-import 'dart:io';
-
 import 'package:chainstep_image_gallery/models/image.dart';
-import 'package:chainstep_image_gallery/utils/constants.dart';
+import 'package:chainstep_image_gallery/pages/photo_details.dart';
 import 'package:chainstep_image_gallery/utils/storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:photo_manager/photo_manager.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class GalleryPage extends StatefulWidget {
   @override
@@ -33,21 +30,51 @@ class _GalleryPageState extends State<GalleryPage> {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.black87,
-      child: (imagesList.length > 0) ? GridView.builder(
-          //cacheExtent: 9999,
-          itemCount: imagesList.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
-            crossAxisSpacing: 5.0,
-            mainAxisSpacing: 5.0,
+      child: (imagesList.length > 0)
+          ? staggeredGridView()
+          : Center(
+        child: Container(
+          width: 20.0,
+          height: 20.0,
+          child: CircularProgressIndicator(
           ),
-          itemBuilder: (context, idx) {
-            return Image.file(imagesList[idx].imageFile,
-              fit: BoxFit.cover,
-              scale: 0.1,
-              cacheWidth: 150,
-            );
-          }) : Text("Empty List",),
+        ),
+      ),
     );
   }
+
+  Widget staggeredGridView() {
+    return StaggeredGridView.countBuilder(
+      crossAxisCount: 4,
+      itemCount: imagesList.length,
+      itemBuilder: (BuildContext context, int index) => GestureDetector(
+        onTap: () => Navigator.push(
+            context,
+            PageRouteBuilder(
+                pageBuilder: (_, __, ___) => PhotoPage(
+                      image: imagesList[index],
+                      cachedImage: imageTile(index),
+                    ),
+                transitionDuration: Duration(milliseconds: 400),
+                fullscreenDialog: true)),
+        child: Hero(
+          tag: "gallery_${imagesList[index].id}",
+          child: imageTile(index)
+        ),
+      ),
+      staggeredTileBuilder: (int index) =>
+          StaggeredTile.count(2, imagesList[index].tileSize()),
+      mainAxisSpacing: 6.0,
+      crossAxisSpacing: 5.0,
+    );
+  }
+
+  Image imageTile(int index) {
+    return  Image.file(
+      imagesList[index].imageFile,
+      fit: BoxFit.cover,
+      cacheWidth: 220,
+    );
+  }
+
 }
