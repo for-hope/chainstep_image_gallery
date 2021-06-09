@@ -18,7 +18,7 @@ Future<List<GalleryImage>> fetchImagesFromStorage() async {
     print("Media directories $mediaDirectoriesList");
     for (var directory in mediaDirectoriesList) {
       AssetPathEntity mediaDirectory = directory;
-      if (mediaDirectory.name == 'Recent') { //todo change back to recent
+      if (mediaDirectory.name == 'Camera') { //todo change back to recent
 
         List<AssetEntity> imageList = await mediaDirectory.assetList;
 

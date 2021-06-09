@@ -50,13 +50,13 @@ class _GalleryPageState extends State<GalleryPage> {
 
   void updateImages(List<GalleryImage> imageList) {
     setState(() {
-      images = imageList;
+      images = imageList.sublist(0, 200);
     });
   }
 
   void refreshImages() async {
     await fetchImagesFromStorage().then((value) {
-      if(!listEquals(images, value)){
+      if (!listEquals(images, value)) {
         setState(() {
           images = value;
         });
@@ -66,23 +66,28 @@ class _GalleryPageState extends State<GalleryPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        color: Colors.black87,
-        child: (images.length > 0) ? staggeredGrid() : loadingView());
+    return (images.length > 0) ? staggeredGrid() : loadingView();
+    //return staggeredGrid();
   }
 
   Widget loadingView() {
-    return Center(
-      child: Container(
-        width: 20.0,
-        height: 20.0,
-        child: CircularProgressIndicator(),
+    return SliverToBoxAdapter(
+      child: SizedBox(
+        width: double.infinity,
+        height: 200,
+        child: Center(
+          child: Container(
+            width: 20.0,
+            height: 20.0,
+            child: CircularProgressIndicator(),
+          ),
+        ),
       ),
     );
   }
 
   Widget staggeredGrid() {
-    return StaggeredGridView.countBuilder(
+    return SliverStaggeredGrid.countBuilder(
       crossAxisCount: 4,
       itemCount: images.length,
       itemBuilder: (BuildContext context, int index) => GestureDetector(
@@ -102,13 +107,17 @@ class _GalleryPageState extends State<GalleryPage> {
           child: Hero(
             tag: "gallery_${images[index].id}",
             child: (images[index].imageFile().existsSync())
-                ? imageTile(index)
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: imageTile(index))
                 : invalidImage(index),
           )),
       staggeredTileBuilder: (int index) =>
-          StaggeredTile.count(2, images[index].tileSize()),
-      mainAxisSpacing: 6.0,
-      crossAxisSpacing: 5.0,
+          StaggeredTile.count(2, (index.isEven) ? 3 : 2),
+      mainAxisSpacing: 25.0,
+      crossAxisSpacing: 20.0,
+      //padding: EdgeInsets.only(left: 12, right: 12),
+
     );
   }
 

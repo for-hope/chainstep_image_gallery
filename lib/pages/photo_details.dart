@@ -27,11 +27,9 @@ class _PhotoPageState extends State<PhotoPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    precacheImage(preCachedImage, context).whenComplete(() {
-      setState(() {
-        displayPhoto = preCachedImage;
-      });
-    });
+    precacheImage(preCachedImage, context).then((value) => setState(() {
+          displayPhoto = preCachedImage;
+        }));
   }
 
   @override
@@ -39,14 +37,15 @@ class _PhotoPageState extends State<PhotoPage> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text(widget.image.title,),
+        title: Text(
+          widget.image.title,
+        ),
         backgroundColor: Colors.black87.withOpacity(0.5),
         brightness: Brightness.dark,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-
       ),
       body: SafeArea(
         child: PhotoView(
