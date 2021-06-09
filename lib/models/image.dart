@@ -4,7 +4,6 @@ import 'dart:ui';
 
 class GalleryImage {
   final String id;
-  //File imageFile;
   final int width;
   final int height;
   final String filePath;
@@ -18,7 +17,7 @@ class GalleryImage {
   }
 
   double tileSize() {
-    return (this.height >= this.width) ? 2 : 1.5;
+    return (this.height >= this.width) ? 3 : 2;
   }
 
   GalleryImage.fromJson(Map<String, dynamic> json)

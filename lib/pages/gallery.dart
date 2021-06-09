@@ -2,8 +2,8 @@
 import 'package:chainstep_image_gallery/models/image.dart';
 import 'package:chainstep_image_gallery/pages/photo_details.dart';
 import 'package:chainstep_image_gallery/services/cache.dart';
+import 'package:chainstep_image_gallery/services/storage.dart';
 import 'package:chainstep_image_gallery/utils/constants.dart';
-import 'file:///C:/Users/songo/AndroidStudioProjects/chainstep_image_gallery/lib/services/storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -65,7 +65,6 @@ class _GalleryPageState extends State<GalleryPage> {
   @override
   Widget build(BuildContext context) {
     return (images.length > 0) ? staggeredGrid() : loadingView();
-    //return staggeredGrid();
   }
 
   Widget loadingView() {
@@ -111,10 +110,9 @@ class _GalleryPageState extends State<GalleryPage> {
                 : invalidImage(index),
           )),
       staggeredTileBuilder: (int index) =>
-          StaggeredTile.count(2, (index.isEven) ? 3 : 2),
+          StaggeredTile.count(2, images[index].tileSize()), // change to (index.isEven) ? 3 : 2 to change the staggered tiles
       mainAxisSpacing: 25.0,
       crossAxisSpacing: 20.0,
-      //padding: EdgeInsets.only(left: 12, right: 12),
 
     );
   }

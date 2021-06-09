@@ -20,7 +20,6 @@ cachePaths(String key, List<GalleryImage> imageList) async {
     String json = jsonEncode(element.toJson());
     valuesList.add(json);
   });
-  //String value = json.encode(imageList[0].toJson());
   await prefs.setStringList(key, valuesList);
 }
 
