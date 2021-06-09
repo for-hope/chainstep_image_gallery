@@ -1,14 +1,10 @@
-
-
 import 'package:chainstep_image_gallery/pages/gallery.dart';
 import 'package:chainstep_image_gallery/utils/constants.dart';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
-
 
 void main() {
   runApp(MyApp());
@@ -26,8 +22,6 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
         primaryColor: primaryColor,
         accentColor: accentColor,
-
-
       ),
     );
   }
@@ -93,10 +87,8 @@ class _ChainstepGalleryState extends State<ChainstepGallery> {
       stretchTriggerOffset: 100,
       flexibleSpace: FlexibleSpaceBar(
         stretchModes: [StretchMode.zoomBackground],
-        //collapseMode: CollapseMode.pin,
         centerTitle: true,
         collapseMode: CollapseMode.parallax,
-        //title: Text("Gallery"),
         background: Container(
           child: Align(
             alignment: Alignment.centerLeft,
@@ -182,6 +174,7 @@ class _ChainstepGalleryState extends State<ChainstepGallery> {
             ));
   }
 
+  //permissions could use a little work (:
   void requestPermission() async {
     if (await Permission.storage.request().isGranted) {
       toastMessage(text: "Permission already granted.");
@@ -193,4 +186,3 @@ class _ChainstepGalleryState extends State<ChainstepGallery> {
     }
   }
 }
-

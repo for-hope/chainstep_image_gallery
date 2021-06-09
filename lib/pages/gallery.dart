@@ -1,16 +1,14 @@
-import 'dart:convert';
 
 import 'package:chainstep_image_gallery/models/image.dart';
 import 'package:chainstep_image_gallery/pages/photo_details.dart';
 import 'package:chainstep_image_gallery/services/cache.dart';
-
 import 'package:chainstep_image_gallery/utils/constants.dart';
 import 'file:///C:/Users/songo/AndroidStudioProjects/chainstep_image_gallery/lib/services/storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 
 class GalleryPage extends StatefulWidget {
   @override
@@ -19,7 +17,7 @@ class GalleryPage extends StatefulWidget {
 
 class _GalleryPageState extends State<GalleryPage> {
   List<GalleryImage> images = [];
-
+  String folder = 'Recent'; //change this to "Camera" or "Pictures" to access these folders
   @override
   void initState() {
     //fetch images from cache or photo_manager
@@ -55,7 +53,7 @@ class _GalleryPageState extends State<GalleryPage> {
   }
 
   void refreshImages() async {
-    await fetchImagesFromStorage().then((value) {
+    await fetchImagesFromStorage(folder).then((value) {
       if (!listEquals(images, value)) {
         setState(() {
           images = value;

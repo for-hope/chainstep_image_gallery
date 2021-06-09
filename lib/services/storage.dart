@@ -4,12 +4,10 @@ import 'dart:io';
 import 'package:chainstep_image_gallery/models/image.dart';
 import 'package:chainstep_image_gallery/services/cache.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../utils/constants.dart';
-import 'dart:convert';
 
-Future<List<GalleryImage>> fetchImagesFromStorage() async {
+
+Future<List<GalleryImage>> fetchImagesFromStorage(String folder) async {
   List<GalleryImage> filesList = [];
   var result = await PhotoManager.requestPermissionExtend();
   if (result.isAuth) {
@@ -18,7 +16,7 @@ Future<List<GalleryImage>> fetchImagesFromStorage() async {
     print("Media directories $mediaDirectoriesList");
     for (var directory in mediaDirectoriesList) {
       AssetPathEntity mediaDirectory = directory;
-      if (mediaDirectory.name == 'Camera') { //todo change back to recent
+      if (mediaDirectory.name == folder) {
 
         List<AssetEntity> imageList = await mediaDirectory.assetList;
 
